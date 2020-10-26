@@ -1,0 +1,22 @@
+{
+  "name": "ez-rpc",
+  "version": "0.0.1",
+  "description": "Cross language remote execution ",
+  "main": "./javascript/main.js",
+  "scripts": {
+    "test": "echo \"all tests (0) passed\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeff-hykin/ez-rpc.git"
+  },
+  "keywords": [
+    "ez-rpc"
+  ],
+  "author": "Jeff Hykin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jeff-hykin/ez-rpc/issues"
+  },
+  "homepage": "https://github.com/jeff-hykin/ez-rpc#readme"
+}
