@@ -25,8 +25,4 @@
             // build API with middleware
             // build-in error re-throwing middleware
 
-module.exports = {
-    connect(url, authData) {
-        
-    }
-}
+module.exports = {}
