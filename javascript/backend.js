@@ -3,83 +3,7 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const { v4: uuidv4 } = require('uuid')
 const app = express()
-
-let recursivelyAllAttributesOf = (obj) => {
-    // if not an object then add no attributes
-    if (!(obj instanceof Object)) {
-        return []
-    }
-    // else check all keys for sub-attributes
-    var output = []
-    for (let eachKey of Object.keys(obj)) {
-        // add the key itself (alone)
-        output.push([eachKey])
-        // add all of its children
-        let newAttributes = recursivelyAllAttributesOf(obj[eachKey])
-        // if nested
-        for (let eachNewAttributeList of newAttributes) {
-            // add the parent key
-            eachNewAttributeList.unshift(eachKey)
-            output.push(eachNewAttributeList)
-        }
-    }
-    return output
-}
-
-/**
- * Safely get nested values
- *
- * @param {any} obj.from - what object/value you're extracting from
- * @param {string[]} obj.keyList - anObject.key1.key2 -> [ "key1", "key2" ]
- * @param {any} obj.failValue - what to return in the event of an error
- * @return {any} either the failValue or the actual value
- *
- * @example
- *     let obj = { key1: {} }
- *     // equivlent to obj.key1.subKey.subSubKey
- *     get({
- *         keyList: [ 'key1', 'subKey', 'subSubKey' ],
- *         from: obj,
- *     })
- *     get({
- *         keyList: [ 'key1', 'subKey', 'subSubKey' ],
- *         from: null,
- *     })
- *     get({
- *         keyList: [ 'key1', 'subKey', 'subSubKey' ],
- *         from: null,
- *         failValue: 0
- *     })
- */
-let get = (obj, keyList = undefined, failValue = null) => {
-    // process args
-    let from
-    if (keyList == undefined) {
-        ;({ from, keyList, failValue } = obj)
-        obj = from
-    }
-    // convert string values into lists
-    if (typeof keyList == "string") {
-        if (keyList.length == 0) {
-            keyList = []
-        } else {
-            keyList = keyList.split(".")
-        }
-    }
-    // iterate over nested values
-    try {
-        for (var each of keyList) {
-            if (obj instanceof Object && each in obj) {
-                obj = obj[each]
-            } else {
-                return failValue
-            }
-        }
-    } catch (error) {
-        return failValue
-    }
-    return obj
-}
+let { network, object } = require("good-js")
 
 module.exports = class EzRpcServer {
     /**
@@ -173,7 +97,7 @@ module.exports = class EzRpcServer {
         }
 
         // create the other endpoints
-        for (let endpoint of recursivelyAllAttributesOf(this.interface)) {
+        for (let endpoint of object.recursivelyAllAttributesOf(this.interface)) {
             // 
             // validate endpoint name
             // 
@@ -192,7 +116,7 @@ module.exports = class EzRpcServer {
             // 
             // setup endpoint
             // 
-            let endpointFunction = get(endpoint, this.interface)
+            let endpointFunction = object.get({ keyList: endpoint, from: this.interface})
             if (endpointFunction instanceof Function) {
                 // create an endpoint
                 this.app.post(`call/${endpoint.join("/")}`, (req, res) => callWrapper(endpoint, endpointFunction, req, res))

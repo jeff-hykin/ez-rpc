@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/jeff-hykin/ez-rpc#readme",
   "dependencies": {
+    "good-js": "^3.0.0",
     "uuid": "^8.3.1"
   }
 }
