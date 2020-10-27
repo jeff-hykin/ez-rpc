@@ -13,6 +13,7 @@ module.exports = class EzRpcServer {
      * @param {Array} [arg.beforeEachCall] - an array of functions (see README examples)
      * @param {Array} [arg.afterEachCall] - an array of functions (see README examples)
      * @param {Object} [arg.interface] - an object of async functions (see README)
+     * @param {Object} [arg.verbosity] - how much logging
      * @return {EzRpcServer}
      *
      * @example
@@ -22,32 +23,39 @@ module.exports = class EzRpcServer {
         arg = {
             port: 4321,
             beforeEachCall: [],
-            afterAllFunctionCalls: [],
+            afterEachCall: [],
             interface: {},
             limit: '50mb',
+            startImmediately: false,
+            verbosity: 1,
         }
     ) {
-        this.beforeEachCall = arg.beforeEachCall
-        this.afterEachCall = arg.afterEachCall
-        this.interface = arg.interface
+        this.beforeEachCall = arg.beforeEachCall || []
+        this.afterEachCall = arg.afterEachCall || []
+        this.interface = arg.interface || {}
         this.port = arg.port
         this.app = express()
         this.app.use(cors())
-        this.app.use(bodyParser.json({limit, extended: true}))
+        this.app.use(bodyParser.json({limit: arg.limit, extended: true}))
+        this.verbosity = arg.verbosity || 1
+        if (arg.startImmediately) {
+            this.start()
+        }
     }
 
     async start() {
         // create the interface endpoint (which is needed by the client)
-        this.app.post(`interface`, (req, res) => {
+        this.verbosity&&console.log(`setup /interface`)
+        this.app.post(`/interface`, (req, res) => {
             let data = req.body
             // tell the requester how the API is laid out
-            res.send({ "interface": this.interface, info: { uuid: uuidv4() } })
+            res.send({ "interface": object.recursivelyAllAttributesOf(this.interface), info: { uuid: uuidv4() } })
             // FUTURE: maybe include setup options
             // FUTURE: maybe include documentation for functions
         })
 
-        let callWrapper = (endpoint, endpointFunction, req, res) => {
-            let error
+        let callWrapper = async (endpoint, endpointFunction, req, res) => {
+            let error, output
             try {
                 var [ args, metadata ] = req.body
                 // process the incoming data
@@ -55,7 +63,7 @@ module.exports = class EzRpcServer {
                     await eachMiddlewareFunction({metadata, endpoint, endpointFunction, args, req, res})
                 }
                 // execute the call 
-                let output = theFunction(args)
+                output = endpointFunction(args)
                 if (output instanceof Promise) {
                     output = await output
                 }
@@ -118,11 +126,19 @@ module.exports = class EzRpcServer {
             // 
             let endpointFunction = object.get({ keyList: endpoint, from: this.interface})
             if (endpointFunction instanceof Function) {
+                this.verbosity&&console.log(`setup: /call/${endpoint.join("/")}`)
+
                 // create an endpoint
-                this.app.post(`call/${endpoint.join("/")}`, (req, res) => callWrapper(endpoint, endpointFunction, req, res))
+                this.app.post(`/call/${endpoint.join("/")}`, (req, res) => callWrapper(endpoint, endpointFunction, req, res))
             }
         }
 
-        return new Promise(resolve=>this.app.listen(this.port, resolve))
+        return new Promise(resolve=>{
+            this.app.listen(this.port, resolve)
+            
+            this.verbosity&&console.log(`=======================`)
+            this.verbosity&&console.log(` ez-rpc server started`)
+            this.verbosity&&console.log(`=======================`)
+        })
     }
 }
