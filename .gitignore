@@ -4,6 +4,12 @@
 *.nosync*
 
 # 
+# nix
+# 
+.bash_history
+.local
+
+# 
 # Linux
 # 
 *~
