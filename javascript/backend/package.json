@@ -1,6 +1,6 @@
 {
   "name": "ez-rpc-backend",
-  "version": "0.0.5",
+  "version": "0.0.9",
   "description": "Cross language remote execution",
   "main": "backend.js",
   "scripts": {
