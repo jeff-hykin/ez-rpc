@@ -1,6 +1,6 @@
 {
   "name": "ez-rpc-backend",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "Cross language remote execution",
   "main": "backend.js",
   "scripts": {
@@ -23,7 +23,7 @@
   "dependencies": {
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
-    "good-js": "3.0.6",
+    "good-js": "3.0.7",
     "uuid": "^8.3.1"
   }
 }
