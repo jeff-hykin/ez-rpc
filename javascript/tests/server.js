@@ -1,4 +1,4 @@
-const EzRpcServer = require("../javascript/backend")
+const EzRpcServer = require("../backend/backend.js")
 
 new EzRpcServer({
     port: 4321,

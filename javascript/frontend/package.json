@@ -1,6 +1,6 @@
 {
   "name": "ez-rpc-frontend",
-  "version": "0.0.2",
+  "version": "0.0.12",
   "description": "Cross language remote execution",
   "main": "./frontend.js",
   "scripts": {
@@ -21,6 +21,6 @@
   },
   "homepage": "https://github.com/jeff-hykin/ez-rpc#readme",
   "dependencies": {
-    "good-js": "3.0.2"
+    "good-js": "3.0.7"
   }
 }
