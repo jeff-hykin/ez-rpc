@@ -56,6 +56,9 @@ module.exports = class EzRpcServer {
 
         let callWrapper = async (endpoint, endpointFunction, req, res) => {
             let error, output
+            // 
+            // call the backend function and catch any errors
+            // 
             try {
                 var [ args, metadata ] = req.body
                 // process the incoming data
@@ -70,11 +73,17 @@ module.exports = class EzRpcServer {
             } catch (err) {
                 error = err
             }
-
+            
+            // 
+            // call the after methods (which can handle errors)
+            // 
             try {
                 for (let eachMiddlewareFunction of this.afterEachCall) {
                     await eachMiddlewareFunction({ output, error, metadata, endpoint, endpointFunction, args, req, res})
                 }
+                // 
+                // send the client the normal or error response
+                // 
                 if (error) {
                     // tell the requester there was an error
                     res.send({
@@ -90,6 +99,10 @@ module.exports = class EzRpcServer {
                 } else {
                     res.send({ value: output })
                 }
+            
+            // 
+            // if middleware hits an error...
+            // 
             // backup error catching system (don't just leave requester waiting on a request-timeout)
             } catch (err) {
                 console.error(err)
