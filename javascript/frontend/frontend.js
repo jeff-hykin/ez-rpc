@@ -19,7 +19,12 @@ module.exports = {
         }
         
         return new Promise(async (resolve, reject)=>{
-            let result = await network.postJson({ data: [], to: `${url}/interface`})
+            let result
+            try {
+                result = await network.postJson({ data: [], to: `${url}/interface`})
+            } catch (error) {
+                reject(error)
+            }
             
             // create all the endpoints
             for (let eachKeyList of result.interface) {
