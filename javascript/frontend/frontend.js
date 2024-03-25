@@ -23,7 +23,7 @@ module.exports = {
             try {
                 result = await network.postJson({ data: [], to: `${url}/interface`})
             } catch (error) {
-                reject(error)
+                return reject(error)
             }
             
             // create all the endpoints
